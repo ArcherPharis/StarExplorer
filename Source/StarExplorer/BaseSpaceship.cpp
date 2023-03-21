@@ -4,7 +4,12 @@
 #include "BaseSpaceship.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "SEController.h"
+#include "ExplorerCharacter.h"
+#include "SpaceShipGameMode.h"
+#include "InteriorLevelInstance.h"
 #include "PhysicsEngine/PhysicsThrusterComponent.h"
 
 
@@ -14,10 +19,8 @@ ABaseSpaceship::ABaseSpaceship()
 {
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-	ShipRoot = CreateDefaultSubobject<USceneComponent>(TEXT("RootComp"));
-	SetRootComponent(ShipRoot);
 	ShipMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ShipMesh"));
-	ShipMesh->SetupAttachment(RootComponent);
+	SetRootComponent(ShipMesh);
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
 	SpringArm->SetupAttachment(ShipMesh);
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
@@ -31,7 +34,15 @@ ABaseSpaceship::ABaseSpaceship()
 void ABaseSpaceship::BeginPlay()
 {
 	Super::BeginPlay();
+	gameMode = Cast<ASpaceShipGameMode>(UGameplayStatics::GetGameMode(this));
+	if (gameMode->GetSpacePlayer())
+	{
+		playerExplorer = gameMode->GetSpacePlayer();
+		playerExplorer->SetExplorerShip(this);
+		spaceController = Cast<ASEController>(playerExplorer->GetOwner());
 
+	}
+	SpawnInterior();
 	
 }
 
@@ -55,8 +66,15 @@ void ABaseSpaceship::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	PlayerInputComponent->BindAxis("MoveRight", this, &ABaseSpaceship::MoveRight);
 	PlayerInputComponent->BindAxis("Roll", this, &ABaseSpaceship::Roll);
 	PlayerInputComponent->BindAxis("Elevate", this, &ABaseSpaceship::Elevate);
+	PlayerInputComponent->BindAction("StopPiloting", IE_Pressed, this, &ABaseSpaceship::StopPiloting);
 
 
+
+}
+
+void ABaseSpaceship::SetShipInterior(AInteriorLevelInstance* shipInt)
+{
+	ShipInterior = shipInt;
 }
 
 void ABaseSpaceship::Boost()
@@ -87,7 +105,7 @@ void ABaseSpaceship::Thrust(float Value)
 	{
 		Speed = toMaxSpeed;
 		ForwardVelocity = ShipMesh->GetRightVector() * -Speed;
-		ShipMesh->SetPhysicsLinearVelocity(ForwardVelocity);
+		ShipMesh->AddForce(ForwardVelocity * 1000);
 	}
 
 }
@@ -102,6 +120,28 @@ void ABaseSpaceship::Roll(float Value)
 {
 	ChangeShipTorque(Value, RollingPower, ShipMesh->GetRightVector());
 
+}
+
+void ABaseSpaceship::SpawnInterior()
+{
+	ShipInterior = GetWorld()->SpawnActor<AInteriorLevelInstance>(ShipInteriorClass);
+	ShipInterior->SetActorHiddenInGame(true);
+}
+
+void ABaseSpaceship::StopPiloting()
+{
+	if (playerExplorer)
+	{
+		spaceController->UnPossess();
+		spaceController->Possess(playerExplorer);
+	}
+}
+
+void ABaseSpaceship::InteractWith(AExplorerCharacter* player)
+{
+	//spaceController->UnPossess();
+	//spaceController->Possess(this);
+	player->SetActorLocation(ShipInterior->GetPlayerStartLocation()->GetComponentLocation());
 }
 
 void ABaseSpaceship::ChangeShipTorque(float InputValue, float Power, FVector ShipVector)

@@ -4,10 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
+#include "IInteractableInterface.h"
 #include "BaseSpaceship.generated.h"
 
 UCLASS()
-class STAREXPLORER_API ABaseSpaceship : public APawn
+class STAREXPLORER_API ABaseSpaceship : public APawn, public IIInteractableInterface
 {
 	GENERATED_BODY()
 
@@ -30,6 +31,9 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	UFUNCTION(BlueprintCallable, Category = "Ship")
+	void SetShipInterior(class AInteriorLevelInstance* shipInt);
+
 private:
 	void Boost();
 	void MoveUp(float Value);
@@ -37,6 +41,10 @@ private:
 	void Thrust(float Value);
 	void MoveRight(float Value);
 	void Roll(float Value);
+	void SpawnInterior();
+	void StopPiloting();
+
+	virtual void InteractWith(AExplorerCharacter* player) override;
 
 	void ChangeShipTorque(float InputValue, float Power, FVector ShipVector);
 
@@ -45,11 +53,19 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Ship")
 	class UPhysicsThrusterComponent* PhysicsThruster;
 	UPROPERTY(EditDefaultsOnly, Category = "Ship")
-	USceneComponent* ShipRoot;
-	UPROPERTY(EditDefaultsOnly, Category = "Ship")
 	class USpringArmComponent* SpringArm;
 	UPROPERTY(EditDefaultsOnly, Category = "Ship")
 	class UCameraComponent* Camera;
+	UPROPERTY(EditDefaultsOnly, Category = "Ship")
+	TSubclassOf<class AInteriorLevelInstance> ShipInteriorClass;
+	UPROPERTY(VisibleAnywhere, Category = "Ship")
+	AInteriorLevelInstance* ShipInterior;
+	UPROPERTY()
+	class ASpaceShipGameMode* gameMode;
+	UPROPERTY()
+	class AExplorerCharacter* playerExplorer;
+	UPROPERTY()
+	class ASEController* spaceController;
 
 	UPROPERTY(EditDefaultsOnly, Category = "ShipParameters")
 	float LiftPower = 500.f;
