@@ -27,4 +27,7 @@ public:
 private:
 	virtual void InteractWith(AExplorerCharacter* player) override;
 
+	UPROPERTY(EditDefaultsOnly)
+	UStaticMeshComponent* meshComponent;
+
 };

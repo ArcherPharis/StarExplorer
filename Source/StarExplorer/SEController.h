@@ -13,5 +13,30 @@ UCLASS()
 class STAREXPLORER_API ASEController : public APlayerController
 {
 	GENERATED_BODY()
+
+public:
+	void SetShip(class ABaseSpaceship* ship);
+
+
+
+protected:
+	virtual void BeginPlay() override;
+
+	virtual void OnPossess(APawn* InPawn) override;
+
+private:
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	TSubclassOf<class UInGameUI> InGameUIClass;
+
+	UPROPERTY()
+	UInGameUI* InGameUI;
+
+	class ABaseSpaceship* controllingShip;
+	class AExplorerCharacter* controllingPlayer;
+
+
+
+	UFUNCTION()
+	void ChangeFuelGauge(float current, float max);
 	
 };

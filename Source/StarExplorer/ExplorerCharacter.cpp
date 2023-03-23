@@ -45,6 +45,11 @@ void AExplorerCharacter::SetExplorerShip(ABaseSpaceship* myNewShip)
 	MySpaceship = myNewShip;
 }
 
+void AExplorerCharacter::ChangeFuelDrops(int amount)
+{
+	FuelDrops = FMath::Clamp(FuelDrops + amount, 0, MaxFuelDrops);
+}
+
 void AExplorerCharacter::Interact()
 {
 	FHitResult traceResult;

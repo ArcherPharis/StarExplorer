@@ -7,6 +7,8 @@
 #include "IInteractableInterface.h"
 #include "BaseSpaceship.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnFuelChange, float, currentValue, float, maxValue);
+
 UCLASS()
 class STAREXPLORER_API ABaseSpaceship : public APawn, public IIInteractableInterface
 {
@@ -15,6 +17,10 @@ class STAREXPLORER_API ABaseSpaceship : public APawn, public IIInteractableInter
 public:
 	// Sets default values for this pawn's properties
 	ABaseSpaceship();
+
+	FOnFuelChange onFuelChange;
+
+	void AddFuel(float amount);
 
 protected:
 	// Called when the game starts or when spawned
@@ -66,6 +72,11 @@ private:
 	class AExplorerCharacter* playerExplorer;
 	UPROPERTY()
 	class ASEController* spaceController;
+
+	UPROPERTY(EditDefaultsOnly, Category = "ShipParameters")
+	float MaxFuel = 1000.f;
+	UPROPERTY(EditAnywhere, Category = "ShipParameters")
+	float CurrentFuel = 700.f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "ShipParameters")
 	float LiftPower = 500.f;

@@ -30,6 +30,9 @@ public:
 
 	ABaseSpaceship* GetExplorerShip() const { return MySpaceship; }
 
+	void ChangeFuelDrops(int amount);
+	int GetFuelDrops() const { return FuelDrops; }
+
 private:
 	UPROPERTY(EditAnywhere, Category = "Explorer")
 	class USpringArmComponent* SpringArmComp;
@@ -39,6 +42,11 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Explorer")
 	float GrabRange = 200.f;
+
+	UPROPERTY(EditAnywhere, Category = "FuelDrops")
+	int FuelDrops = 1;
+	UPROPERTY(EditDefaultsOnly, Category = "FuelDrops")
+	int MaxFuelDrops = 100;
 
 	UPROPERTY()
 	ABaseSpaceship* MySpaceship;

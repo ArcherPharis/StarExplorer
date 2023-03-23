@@ -8,6 +8,9 @@ ABaseSpaceTerminal::ABaseSpaceTerminal()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+	meshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
+	SetRootComponent(meshComponent);
+	meshComponent->SetCollisionResponseToChannel(ECC_GameTraceChannel1, ECR_Block);
 
 }
 

@@ -30,6 +30,12 @@ ABaseSpaceship::ABaseSpaceship()
 
 }
 
+void ABaseSpaceship::AddFuel(float amount)
+{
+	CurrentFuel = FMath::Clamp(CurrentFuel + amount, 0, MaxFuel);
+	onFuelChange.Broadcast(CurrentFuel, MaxFuel);
+}
+
 // Called when the game starts or when spawned
 void ABaseSpaceship::BeginPlay()
 {
@@ -40,6 +46,8 @@ void ABaseSpaceship::BeginPlay()
 		playerExplorer = gameMode->GetSpacePlayer();
 		playerExplorer->SetExplorerShip(this);
 		spaceController = Cast<ASEController>(playerExplorer->GetOwner());
+		spaceController->SetShip(this);
+		onFuelChange.Broadcast(CurrentFuel, MaxFuel);
 
 	}
 	SpawnInterior();
@@ -50,7 +58,6 @@ void ABaseSpaceship::BeginPlay()
 void ABaseSpaceship::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 
 
 
@@ -96,23 +103,32 @@ void ABaseSpaceship::Elevate(float Value)
 
 void ABaseSpaceship::Thrust(float Value)
 {
-	//the +1 and /2 prevent the ship from going backwards, pressing "S" will only slow the ship to a halt.
-	float alpha = (Value + 1) / 2;
-	float buildUpSpeed = FMath::Lerp(0, MaxSpeed, alpha);
-	float toMaxSpeed = FMath::FInterpTo(Speed, buildUpSpeed, GetWorld()->GetDeltaSeconds(), SpeedBuildUpRate);
-
-	if (!FMath::IsNearlyEqual(Value, 0.0f, 0.1))
+	if (CurrentFuel > 0)
 	{
-		Speed = toMaxSpeed;
-		ForwardVelocity = ShipMesh->GetRightVector() * -Speed;
-		ShipMesh->AddForce(ForwardVelocity * 1000);
+		//the +1 and /2 prevent the ship from going backwards, pressing "S" will only slow the ship to a halt.
+		float alpha = (Value + 1) / 2;
+		float buildUpSpeed = FMath::Lerp(0, MaxSpeed, alpha);
+		float toMaxSpeed = FMath::FInterpTo(Speed, buildUpSpeed, GetWorld()->GetDeltaSeconds(), SpeedBuildUpRate);
+
+		if (!FMath::IsNearlyEqual(Value, 0.0f, 0.1))
+		{
+			Speed = toMaxSpeed;
+			ForwardVelocity = ShipMesh->GetRightVector() * -Speed;
+			ShipMesh->AddForce(ForwardVelocity * 1000);
+		}
+		CurrentFuel = FMath::Clamp(CurrentFuel -= Value * 0.1, 0, MaxFuel);
+		onFuelChange.Broadcast(CurrentFuel, MaxFuel);
+		
 	}
 
 }
 
 void ABaseSpaceship::MoveRight(float Value)
 {
-	ChangeShipTorque(Value, TurnPower, ShipMesh->GetUpVector());
+	if (CurrentFuel > 0)
+	{
+		ChangeShipTorque(Value, TurnPower, ShipMesh->GetUpVector());
+	}
 
 }
 
