@@ -9,6 +9,7 @@
 #include "SEController.h"
 #include "ExplorerCharacter.h"
 #include "SpaceShipGameMode.h"
+#include "Projectile.h"
 #include "InteriorLevelInstance.h"
 #include "PhysicsEngine/PhysicsThrusterComponent.h"
 
@@ -27,6 +28,8 @@ ABaseSpaceship::ABaseSpaceship()
 	Camera->SetupAttachment(SpringArm);
 	PhysicsThruster = CreateDefaultSubobject<UPhysicsThrusterComponent>(TEXT("PhysicsThrust"));
 	PhysicsThruster->SetupAttachment(ShipMesh);
+	ProjectileLaunchMuzzle = CreateDefaultSubobject<USceneComponent>(TEXT("Muzzle"));
+	ProjectileLaunchMuzzle->SetupAttachment(ShipMesh);
 
 }
 
@@ -50,7 +53,7 @@ void ABaseSpaceship::BeginPlay()
 		onFuelChange.Broadcast(CurrentFuel, MaxFuel);
 
 	}
-	SpawnInterior();
+	//SpawnInterior();
 	
 }
 
@@ -68,6 +71,7 @@ void ABaseSpaceship::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 	PlayerInputComponent->BindAction("Boost", IE_Pressed, this, &ABaseSpaceship::Boost);
+	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ABaseSpaceship::Fire);
 	PlayerInputComponent->BindAxis("MoveUp", this, &ABaseSpaceship::MoveUp);
 	PlayerInputComponent->BindAxis("Thrust", this, &ABaseSpaceship::Thrust);
 	PlayerInputComponent->BindAxis("MoveRight", this, &ABaseSpaceship::MoveRight);
@@ -82,6 +86,11 @@ void ABaseSpaceship::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 void ABaseSpaceship::SetShipInterior(AInteriorLevelInstance* shipInt)
 {
 	ShipInterior = shipInt;
+}
+
+void ABaseSpaceship::SetSpeed(float newSpeed)
+{
+	Speed = newSpeed;
 }
 
 void ABaseSpaceship::Boost()
@@ -146,18 +155,34 @@ void ABaseSpaceship::SpawnInterior()
 
 void ABaseSpaceship::StopPiloting()
 {
-	if (playerExplorer)
+	//if (playerExplorer)
+	//{
+	//	spaceController->UnPossess();
+	//	spaceController->Possess(playerExplorer);
+	//}
+}
+
+void ABaseSpaceship::Fire()
+{
+
+	FVector WorldLocation;
+	FVector WorldDirection;
+	if (spaceController->DeprojectMousePositionToWorld(WorldLocation, WorldDirection))
 	{
-		spaceController->UnPossess();
-		spaceController->Possess(playerExplorer);
+		AProjectile* projectile = GetWorld()->SpawnActor<AProjectile>(ProjectileClass, ProjectileLaunchMuzzle->GetComponentTransform());
+		projectile->SetTarget(WorldDirection);
 	}
+
+
 }
 
 void ABaseSpaceship::InteractWith(AExplorerCharacter* player)
 {
-	//spaceController->UnPossess();
-	//spaceController->Possess(this);
-	player->SetActorLocation(ShipInterior->GetPlayerStartLocation()->GetComponentLocation());
+	player->SetActorHiddenInGame(true);
+	spaceController->bShowMouseCursor = true;
+	spaceController->UnPossess();
+	spaceController->Possess(this);
+	//player->SetActorLocation(ShipInterior->GetPlayerStartLocation()->GetComponentLocation());
 }
 
 void ABaseSpaceship::ChangeShipTorque(float InputValue, float Power, FVector ShipVector)

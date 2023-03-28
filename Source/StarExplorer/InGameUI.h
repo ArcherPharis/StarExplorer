@@ -19,6 +19,7 @@ public:
 
 	void SetCurrentFuelMeter(float currentValue, float maxValue);
 
+
 private:
 	UPROPERTY(meta = (BindWidget))
 	class UProgressBar* CurrentFuelMeter;

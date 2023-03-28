@@ -14,6 +14,7 @@ void ASEController::SetShip(ABaseSpaceship* ship)
 }
 
 
+
 void ASEController::BeginPlay()
 {
 	Super::BeginPlay();

@@ -3,6 +3,7 @@
 
 #include "InGameUI.h"
 #include "Components/ProgressBar.h"
+#include "BeginMissionWidget.h"
 
 void UInGameUI::NativeConstruct()
 {
@@ -13,3 +14,4 @@ void UInGameUI::SetCurrentFuelMeter(float currentValue, float maxValue)
 {
 	CurrentFuelMeter->SetPercent(currentValue / maxValue);
 }
+

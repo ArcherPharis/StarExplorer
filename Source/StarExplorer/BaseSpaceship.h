@@ -40,6 +40,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Ship")
 	void SetShipInterior(class AInteriorLevelInstance* shipInt);
 
+	void SetSpeed(float newSpeed);
+
+	class ASEController* GetSpaceController() const { return spaceController; }
+
 private:
 	void Boost();
 	void MoveUp(float Value);
@@ -49,6 +53,7 @@ private:
 	void Roll(float Value);
 	void SpawnInterior();
 	void StopPiloting();
+	void Fire();
 
 	virtual void InteractWith(AExplorerCharacter* player) override;
 
@@ -56,6 +61,9 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Ship")
 	UStaticMeshComponent* ShipMesh;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Ship")
+	USceneComponent* ProjectileLaunchMuzzle;
 	UPROPERTY(EditDefaultsOnly, Category = "Ship")
 	class UPhysicsThrusterComponent* PhysicsThruster;
 	UPROPERTY(EditDefaultsOnly, Category = "Ship")
@@ -71,7 +79,11 @@ private:
 	UPROPERTY()
 	class AExplorerCharacter* playerExplorer;
 	UPROPERTY()
-	class ASEController* spaceController;
+	ASEController* spaceController;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Ship")
+	TSubclassOf<class AProjectile> ProjectileClass;
+
 
 	UPROPERTY(EditDefaultsOnly, Category = "ShipParameters")
 	float MaxFuel = 1000.f;

@@ -17,7 +17,7 @@ class STAREXPLORER_API ASEController : public APlayerController
 public:
 	void SetShip(class ABaseSpaceship* ship);
 
-
+	void ShowBeginMissionUI();
 
 protected:
 	virtual void BeginPlay() override;
