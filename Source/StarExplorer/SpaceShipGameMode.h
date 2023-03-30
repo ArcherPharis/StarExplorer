@@ -17,16 +17,9 @@ class STAREXPLORER_API ASpaceShipGameMode : public AGameModeBase
 public:
 	virtual void BeginPlay() override;
 
-	UFUNCTION(BlueprintCallable, Category = "SpaceGameMode")
-	void SetPlayer(class AExplorerCharacter* playerToSet);
-
-
-	UFUNCTION(BlueprintCallable, Category = "SpaceGameMode")
-	AExplorerCharacter* GetSpacePlayer() const { return player; }
 
 
 private:
-	UPROPERTY(VisibleAnywhere)
-	class AExplorerCharacter* player;
+
 
 };

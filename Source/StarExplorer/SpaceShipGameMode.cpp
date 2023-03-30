@@ -9,11 +9,6 @@
 void ASpaceShipGameMode::BeginPlay()
 {
 	Super::BeginPlay();
-	SetPlayer(Cast<AExplorerCharacter>(UGameplayStatics::GetPlayerCharacter(this, 0)));
 }
 
-void ASpaceShipGameMode::SetPlayer(AExplorerCharacter* playerToSet)
-{
-	player = playerToSet;
-}
 

@@ -19,7 +19,7 @@ void ASEController::BeginPlay()
 {
 	Super::BeginPlay();
 	InGameUI = CreateWidget<UInGameUI>(this,InGameUIClass);
-
+	bShowMouseCursor = true;
 	if (InGameUI)
 	{
 		InGameUI->AddToViewport();

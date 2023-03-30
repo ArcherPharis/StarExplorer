@@ -4,6 +4,7 @@
 #include "Projectile.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Components/SphereComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 AProjectile::AProjectile()
@@ -13,6 +14,7 @@ AProjectile::AProjectile()
 	ProjectileComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileComponent"));
 	HitSphere = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComponent"));
 	HitSphere->SetupAttachment(RootComponent);
+	SetRootComponent(HitSphere);
 	
 }
 
@@ -26,7 +28,7 @@ void AProjectile::SetTarget(FVector Location)
 	FVector CurrentVelocity = ProjectileComponent->Velocity;
 	FVector NewVelocity = Location * CurrentVelocity.Size();
 
-	ProjectileComponent->SetVelocityInLocalSpace(NewVelocity);
+	ProjectileComponent->Velocity = NewVelocity;
 }
 
 
@@ -34,7 +36,7 @@ void AProjectile::SetTarget(FVector Location)
 void AProjectile::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	HitSphere->OnComponentBeginOverlap.AddDynamic(this, &AProjectile::OnProjectileOverlap);
 }
 
 // Called every frame
@@ -42,5 +44,12 @@ void AProjectile::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+}
+
+void AProjectile::OnProjectileOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	UE_LOG(LogTemp, Warning, TEXT("Hit"));
+	OnImpact();
+	UGameplayStatics::ApplyDamage(OtherActor, Damage, nullptr, this, UDamageType::StaticClass());
 }
 

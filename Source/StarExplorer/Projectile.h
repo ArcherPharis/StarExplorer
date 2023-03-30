@@ -17,6 +17,9 @@ public:
 
 	void SetTarget(FVector Location);
 
+	UFUNCTION(BlueprintImplementableEvent, Category = "Projectile")
+	void OnImpact();
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -32,6 +35,13 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
 	class USphereComponent* HitSphere;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
+	float Damage = 30.f;
+
+	UFUNCTION()
+	void OnProjectileOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
 
 
 

@@ -30,6 +30,8 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	void MaxSpeedBoost();
+
 	UFUNCTION(BlueprintCallable, Category = "Ship")
 	class UPhysicsThrusterComponent* GetThrusterComponent() const { return PhysicsThruster; }
 	UFUNCTION(BlueprintCallable, Category = "Ship")
@@ -88,7 +90,7 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "ShipParameters")
 	float MaxFuel = 1000.f;
 	UPROPERTY(EditAnywhere, Category = "ShipParameters")
-	float CurrentFuel = 700.f;
+	float CurrentFuel = 1000.f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "ShipParameters")
 	float LiftPower = 500.f;
@@ -100,12 +102,21 @@ private:
 	float TurnPower = 200.f;
 	UPROPERTY(EditDefaultsOnly, Category = "ShipParameters")
 	float Speed = 0.f;
-	UPROPERTY(EditDefaultsOnly, Category = "ShipParameters")
+	UPROPERTY(EditAnywhere, Category = "ShipParameters")
 	float MaxSpeed = 10000.f;
 	UPROPERTY(EditDefaultsOnly, Category = "ShipParameters")
 	FVector ForwardVelocity;
 	UPROPERTY(EditDefaultsOnly, Category = "ShipParameters")
 	float SpeedBuildUpRate = 0.5f;
+
+	void ReturnToNormalSpeed();
+	bool bCurrentlyBoosted = false;
+	float BoostTime = 2.5f;
+	FTimerHandle SpeedReturnTimer;
+
+	UPROPERTY()
+	class USEGameInstance* Instance;
+	
 
 
 

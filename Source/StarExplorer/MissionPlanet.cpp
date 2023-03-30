@@ -61,6 +61,8 @@ void AMissionPlanet::QueryMissionStart(UPrimitiveComponent* OverlappedComponent,
 
 void AMissionPlanet::BeginMission()
 {
+	ship->EnableInput(cont);
+	cont->SetInputMode(FInputModeGameOnly());
 	UGameplayStatics::OpenLevelBySoftObjectPtr(this, PlanetLevel);
 }
 

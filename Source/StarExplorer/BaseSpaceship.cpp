@@ -9,6 +9,7 @@
 #include "SEController.h"
 #include "ExplorerCharacter.h"
 #include "SpaceShipGameMode.h"
+#include "SEGameInstance.h"
 #include "Projectile.h"
 #include "InteriorLevelInstance.h"
 #include "PhysicsEngine/PhysicsThrusterComponent.h"
@@ -44,15 +45,11 @@ void ABaseSpaceship::BeginPlay()
 {
 	Super::BeginPlay();
 	gameMode = Cast<ASpaceShipGameMode>(UGameplayStatics::GetGameMode(this));
-	if (gameMode->GetSpacePlayer())
-	{
-		playerExplorer = gameMode->GetSpacePlayer();
-		playerExplorer->SetExplorerShip(this);
-		spaceController = Cast<ASEController>(playerExplorer->GetOwner());
-		spaceController->SetShip(this);
-		onFuelChange.Broadcast(CurrentFuel, MaxFuel);
-
-	}
+	spaceController = Cast<ASEController>(GetOwner());
+	spaceController->SetShip(this);
+	//Instance = Cast<USEGameInstance>(GetGameInstance());
+	//CurrentFuel = Instance->GetShipFuel();
+	onFuelChange.Broadcast(CurrentFuel, MaxFuel);
 	//SpawnInterior();
 	
 }
@@ -63,6 +60,20 @@ void ABaseSpaceship::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 
+
+}
+
+void ABaseSpaceship::MaxSpeedBoost()
+{
+	if (!bCurrentlyBoosted)
+	{
+		MaxSpeed *= 2;
+		Speed = MaxSpeed;
+		bCurrentlyBoosted = true;
+		Camera->FieldOfView = 105.f;
+		GetWorldTimerManager().SetTimer(SpeedReturnTimer, this, &ABaseSpaceship::ReturnToNormalSpeed, BoostTime, false);
+
+	}
 
 }
 
@@ -126,6 +137,7 @@ void ABaseSpaceship::Thrust(float Value)
 			ShipMesh->AddForce(ForwardVelocity * 1000);
 		}
 		CurrentFuel = FMath::Clamp(CurrentFuel -= Value * 0.1, 0, MaxFuel);
+		//Instance->SetShipFuel(CurrentFuel);
 		onFuelChange.Broadcast(CurrentFuel, MaxFuel);
 		
 	}
@@ -190,5 +202,13 @@ void ABaseSpaceship::ChangeShipTorque(float InputValue, float Power, FVector Shi
 	float torquePower = InputValue * Power;
 	FVector torque = ShipVector * torquePower;
 	ShipMesh->AddTorqueInDegrees(torque, NAME_None, true);
+}
+
+void ABaseSpaceship::ReturnToNormalSpeed()
+{
+	MaxSpeed /= 2;
+	Speed = MaxSpeed;
+	Camera->FieldOfView = 90.f;
+	bCurrentlyBoosted = false;
 }
 
