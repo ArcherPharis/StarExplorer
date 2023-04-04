@@ -51,10 +51,11 @@ void AMissionPlanet::QueryMissionStart(UPrimitiveComponent* OverlappedComponent,
 	if (ship)
 	{
 		cont = ship->GetSpaceController();
+		cont->SetIsInGameplay(false);
 		OtherActor->DisableInput(cont);
 		cont->SetInputMode(FInputModeUIOnly());
 		MissionWidget->AddToViewport();
-		cont->bShowMouseCursor = true;
+		cont->SetShowMouseCursor(true);
 		ship->SetSpeed(0);
 	}
 }
@@ -62,6 +63,7 @@ void AMissionPlanet::QueryMissionStart(UPrimitiveComponent* OverlappedComponent,
 void AMissionPlanet::BeginMission()
 {
 	ship->EnableInput(cont);
+	cont->SetIsInGameplay(true);
 	cont->SetInputMode(FInputModeGameOnly());
 	UGameplayStatics::OpenLevelBySoftObjectPtr(this, PlanetLevel);
 }
@@ -71,6 +73,8 @@ void AMissionPlanet::CancelQuery()
 	if (MissionWidget)
 	{
 		MissionWidget->RemoveFromViewport();
+		cont->SetIsInGameplay(true);
+		cont->SetShowMouseCursor(false);
 		ship->EnableInput(cont);
 		cont->SetInputMode(FInputModeGameOnly());
 	}

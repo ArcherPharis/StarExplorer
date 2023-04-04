@@ -17,10 +17,13 @@ class STAREXPLORER_API ASEController : public APlayerController
 public:
 	void SetShip(class ABaseSpaceship* ship);
 
-	void ShowBeginMissionUI();
+
+	void SetIsInGameplay(bool inGameplay);
 
 protected:
 	virtual void BeginPlay() override;
+
+	virtual void Tick(float DeltaTime) override;
 
 	virtual void OnPossess(APawn* InPawn) override;
 
@@ -38,5 +41,10 @@ private:
 
 	UFUNCTION()
 	void ChangeFuelGauge(float current, float max);
+
+	UFUNCTION()
+	void ChangeIntegrityMeter(float current, float max);
+
+	bool bIsInGameplay = true;
 	
 };

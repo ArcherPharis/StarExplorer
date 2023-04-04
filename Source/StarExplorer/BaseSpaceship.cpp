@@ -9,6 +9,7 @@
 #include "SEController.h"
 #include "ExplorerCharacter.h"
 #include "SpaceShipGameMode.h"
+#include "HealthComponent.h"
 #include "SEGameInstance.h"
 #include "Projectile.h"
 #include "InteriorLevelInstance.h"
@@ -31,6 +32,7 @@ ABaseSpaceship::ABaseSpaceship()
 	PhysicsThruster->SetupAttachment(ShipMesh);
 	ProjectileLaunchMuzzle = CreateDefaultSubobject<USceneComponent>(TEXT("Muzzle"));
 	ProjectileLaunchMuzzle->SetupAttachment(ShipMesh);
+	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("Health Component"));
 
 }
 
@@ -50,6 +52,7 @@ void ABaseSpaceship::BeginPlay()
 	//Instance = Cast<USEGameInstance>(GetGameInstance());
 	//CurrentFuel = Instance->GetShipFuel();
 	onFuelChange.Broadcast(CurrentFuel, MaxFuel);
+	HealthComponent->OnDeath.AddDynamic(this, &ABaseSpaceship::OnDead);
 	//SpawnInterior();
 	
 }
@@ -70,7 +73,15 @@ void ABaseSpaceship::MaxSpeedBoost()
 		MaxSpeed *= 2;
 		Speed = MaxSpeed;
 		bCurrentlyBoosted = true;
-		Camera->FieldOfView = 105.f;
+
+		//Camera->FieldOfView = 105.f;
+		GetWorldTimerManager().SetTimer(SpeedReturnTimer, this, &ABaseSpaceship::ReturnToNormalSpeed, BoostTime, false);
+
+	}
+	else
+	{
+
+		GetWorldTimerManager().ClearTimer(SpeedReturnTimer);
 		GetWorldTimerManager().SetTimer(SpeedReturnTimer, this, &ABaseSpaceship::ReturnToNormalSpeed, BoostTime, false);
 
 	}
@@ -103,6 +114,7 @@ void ABaseSpaceship::SetSpeed(float newSpeed)
 {
 	Speed = newSpeed;
 }
+
 
 void ABaseSpaceship::Boost()
 {
@@ -181,7 +193,9 @@ void ABaseSpaceship::Fire()
 	FVector WorldDirection;
 	if (spaceController->DeprojectMousePositionToWorld(WorldLocation, WorldDirection))
 	{
-		AProjectile* projectile = GetWorld()->SpawnActor<AProjectile>(ProjectileClass, ProjectileLaunchMuzzle->GetComponentTransform());
+		FActorSpawnParameters params;
+		params.Owner = this;
+		AProjectile* projectile = GetWorld()->SpawnActor<AProjectile>(ProjectileClass, ProjectileLaunchMuzzle->GetComponentTransform(), params);
 		projectile->SetTarget(WorldDirection);
 	}
 
@@ -208,7 +222,7 @@ void ABaseSpaceship::ReturnToNormalSpeed()
 {
 	MaxSpeed /= 2;
 	Speed = MaxSpeed;
-	Camera->FieldOfView = 90.f;
+	//Camera->FieldOfView = 90.f;
 	bCurrentlyBoosted = false;
 }
 

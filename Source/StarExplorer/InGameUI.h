@@ -18,10 +18,14 @@ public:
 	virtual void NativeConstruct() override;
 
 	void SetCurrentFuelMeter(float currentValue, float maxValue);
+	void SetCurrentIntegrityMeter(float currentValue, float maxValue);
 
 
 private:
 	UPROPERTY(meta = (BindWidget))
 	class UProgressBar* CurrentFuelMeter;
+
+	UPROPERTY(meta = (BindWidget))
+	class UProgressBar* ShipIntegrityMeter;
 	
 };

@@ -48,8 +48,12 @@ void AProjectile::Tick(float DeltaTime)
 
 void AProjectile::OnProjectileOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Hit"));
-	OnImpact();
-	UGameplayStatics::ApplyDamage(OtherActor, Damage, nullptr, this, UDamageType::StaticClass());
+	if (OtherActor != GetOwner())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Hit"));
+		OnImpact();
+		UGameplayStatics::ApplyDamage(OtherActor, Damage, nullptr, this, UDamageType::StaticClass());
+	}
+
 }
 

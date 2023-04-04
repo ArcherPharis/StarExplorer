@@ -46,6 +46,12 @@ public:
 
 	class ASEController* GetSpaceController() const { return spaceController; }
 
+	UFUNCTION(BlueprintCallable, Category = "HealthComp")
+	class UHealthComponent* GetHealthComponent() const { return HealthComponent; }
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "HealthComp")
+	void OnDead();
+
 private:
 	void Boost();
 	void MoveUp(float Value);
@@ -57,9 +63,11 @@ private:
 	void StopPiloting();
 	void Fire();
 
+
 	virtual void InteractWith(AExplorerCharacter* player) override;
 
 	void ChangeShipTorque(float InputValue, float Power, FVector ShipVector);
+
 
 	UPROPERTY(EditDefaultsOnly, Category = "Ship")
 	UStaticMeshComponent* ShipMesh;
@@ -80,6 +88,8 @@ private:
 	class ASpaceShipGameMode* gameMode;
 	UPROPERTY()
 	class AExplorerCharacter* playerExplorer;
+	UPROPERTY(EditDefaultsOnly, Category = "Ship")
+	class UHealthComponent* HealthComponent;
 	UPROPERTY()
 	ASEController* spaceController;
 

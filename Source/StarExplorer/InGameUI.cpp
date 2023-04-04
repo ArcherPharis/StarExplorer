@@ -15,3 +15,8 @@ void UInGameUI::SetCurrentFuelMeter(float currentValue, float maxValue)
 	CurrentFuelMeter->SetPercent(currentValue / maxValue);
 }
 
+void UInGameUI::SetCurrentIntegrityMeter(float currentValue, float maxValue)
+{
+	ShipIntegrityMeter->SetPercent(currentValue / maxValue);
+}
+

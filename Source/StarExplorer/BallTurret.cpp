@@ -4,6 +4,7 @@
 #include "BallTurret.h"
 #include "BaseSpaceship.h"
 #include "Projectile.h"
+#include "HealthComponent.h"
 #include "Kismet/GameplayStatics.h"
 
 // Sets default values
@@ -17,6 +18,8 @@ ABallTurret::ABallTurret()
 	TurretMesh->SetupAttachment(BodyMesh);
 	FiringMuzzleLocation = CreateDefaultSubobject<USceneComponent>(TEXT("Muzzle"));
 	FiringMuzzleLocation->SetupAttachment(TurretMesh);
+	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("Health Component"));
+
 
 }
 
@@ -26,6 +29,8 @@ void ABallTurret::BeginPlay()
 	Super::BeginPlay();
 	Ship = Cast<ABaseSpaceship>(UGameplayStatics::GetPlayerPawn(this, 0));
 	GetWorldTimerManager().SetTimer(FireRateTimerHandle, this, &ABallTurret::CheckFireCondition, FireRate, true);
+	HealthComponent->OnDeath.AddDynamic(this, &ABallTurret::OnDead);
+
 }
 
 // Called every frame

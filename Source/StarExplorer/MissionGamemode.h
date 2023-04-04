@@ -25,5 +25,12 @@ private:
 
 	UPROPERTY(VisibleAnywhere, Category = "Rings")
 	int RingsToCapture;
+	UPROPERTY(VisibleAnywhere, Category = "Rings")
+	int RingsCaptured = 0;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Rings")
+	TSubclassOf<class URingWidget> RingWidgetClass;
+
+	URingWidget* RingWidget;
 	
 };

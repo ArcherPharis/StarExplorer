@@ -23,6 +23,9 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	UFUNCTION(BlueprintImplementableEvent, Category = "HealthComp")
+	void OnDead();
+
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Turret")
 	UStaticMeshComponent* BodyMesh;
@@ -48,5 +51,8 @@ private:
 
 	FTimerHandle FireRateTimerHandle;
 	float FireRate = 2.f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Ship")
+	class UHealthComponent* HealthComponent;
 
 };
