@@ -38,12 +38,9 @@ void AGoalRing::Tick(float DeltaTime)
 void AGoalRing::OnShipEnter(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	ABaseSpaceship* Ship = Cast<ABaseSpaceship>(OtherActor);
-	MissionGamemode = Cast<AMissionGamemode>(UGameplayStatics::GetGameMode(this));
-
 	if (Ship)
 	{
 		Ship->MaxSpeedBoost();
-		MissionGamemode->GoalRingPassed(this);
 		Destroy();
 	}
 }

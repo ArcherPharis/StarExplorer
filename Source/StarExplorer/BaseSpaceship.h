@@ -42,6 +42,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Ship")
 	void SetShipInterior(class AInteriorLevelInstance* shipInt);
 
+	UFUNCTION(BlueprintCallable, Category = "Ship")
+	class UCameraComponent* GetCamera() const { return Camera; }
+
 	void SetSpeed(float newSpeed);
 
 	class ASEController* GetSpaceController() const { return spaceController; }
@@ -51,6 +54,12 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "HealthComp")
 	void OnDead();
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "HealthComp")
+	void OnBoost();
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "HealthComp")
+	void OnBoostDone();
 
 private:
 	void Boost();

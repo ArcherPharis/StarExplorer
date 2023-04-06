@@ -21,12 +21,12 @@ public:
 
 private:
 	UPROPERTY(VisibleAnywhere, Category = "Rings")
-	TArray<class AActor*> GoalRings;
+	TArray<class AActor*> DataGoals;
 
 	UPROPERTY(VisibleAnywhere, Category = "Rings")
-	int RingsToCapture;
+	int GoalsToCapture;
 	UPROPERTY(VisibleAnywhere, Category = "Rings")
-	int RingsCaptured = 0;
+	int GoalsCaptured = 0;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Rings")
 	TSubclassOf<class URingWidget> RingWidgetClass;

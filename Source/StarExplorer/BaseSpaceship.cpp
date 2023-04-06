@@ -73,8 +73,7 @@ void ABaseSpaceship::MaxSpeedBoost()
 		MaxSpeed *= 2;
 		Speed = MaxSpeed;
 		bCurrentlyBoosted = true;
-
-		//Camera->FieldOfView = 105.f;
+		OnBoost();
 		GetWorldTimerManager().SetTimer(SpeedReturnTimer, this, &ABaseSpaceship::ReturnToNormalSpeed, BoostTime, false);
 
 	}
@@ -85,6 +84,8 @@ void ABaseSpaceship::MaxSpeedBoost()
 		GetWorldTimerManager().SetTimer(SpeedReturnTimer, this, &ABaseSpaceship::ReturnToNormalSpeed, BoostTime, false);
 
 	}
+	FMath::Clamp(CurrentFuel += 50, 0, MaxFuel);
+	onFuelChange.Broadcast(CurrentFuel, MaxFuel);
 
 }
 
@@ -222,7 +223,7 @@ void ABaseSpaceship::ReturnToNormalSpeed()
 {
 	MaxSpeed /= 2;
 	Speed = MaxSpeed;
-	//Camera->FieldOfView = 90.f;
+	OnBoostDone();
 	bCurrentlyBoosted = false;
 }
 
