@@ -193,11 +193,14 @@ void ABaseSpaceship::ReleaseMissiles()
 
 		for (int i = 0; i < TargetedEnemies.Num(); ++i)
 		{
-			FActorSpawnParameters params;
-			params.Owner = this;
-			params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-			AHomingMissile* missile = GetWorld()->SpawnActor<AHomingMissile>(HomingMissileClass, ProjectileLaunchMuzzle->GetComponentTransform(), params);
-			missile->SetHomingTarget(TargetedEnemies[i]);
+			if (TargetedEnemies[i])
+			{
+				FActorSpawnParameters params;
+				params.Owner = this;
+				params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+				AHomingMissile* missile = GetWorld()->SpawnActor<AHomingMissile>(HomingMissileClass, ProjectileLaunchMuzzle->GetComponentTransform(), params);
+				missile->SetHomingTarget(TargetedEnemies[i]);
+			}
 		}
 
 		TargetedEnemies.Empty();
