@@ -14,6 +14,11 @@ UHealthComponent::UHealthComponent()
 }
 
 
+void UHealthComponent::SetCanTakeDamage(bool CanTakeDamage)
+{
+	bAcceptDamage = CanTakeDamage;
+}
+
 // Called when the game starts
 void UHealthComponent::BeginPlay()
 {
@@ -35,13 +40,18 @@ void UHealthComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 
 void UHealthComponent::TakeDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* Instigator, AActor* DamageCauser)
 {
-	Health = FMath::Clamp(Health - Damage, 0, MaxHealth);
-	OnHealthChange.Broadcast(Health, MaxHealth);
-
-	if (Health == 0)
+	if (bAcceptDamage)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Dead!"));
-		OnDeath.Broadcast();
+		Health = FMath::Clamp(Health - Damage, 0, MaxHealth);
+		OnHealthChange.Broadcast(Health, MaxHealth);
+
+		if (Health == 0)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Dead!"));
+			OnDeath.Broadcast();
+		}
+
+		DamageCauser->Destroy();
 	}
 }
 

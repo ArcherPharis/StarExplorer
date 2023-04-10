@@ -8,11 +8,15 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "SEController.h"
 #include "ExplorerCharacter.h"
+#include "Components/WidgetComponent.h"
 #include "SpaceShipGameMode.h"
 #include "HealthComponent.h"
 #include "SEGameInstance.h"
 #include "Projectile.h"
+#include "HomingMissile.h"
+#include <windows.h>
 #include "InteriorLevelInstance.h"
+#include "Particles/ParticleSystemComponent.h"
 #include "PhysicsEngine/PhysicsThrusterComponent.h"
 
 
@@ -33,6 +37,9 @@ ABaseSpaceship::ABaseSpaceship()
 	ProjectileLaunchMuzzle = CreateDefaultSubobject<USceneComponent>(TEXT("Muzzle"));
 	ProjectileLaunchMuzzle->SetupAttachment(ShipMesh);
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("Health Component"));
+	ParticleSystemComp = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("Particle System"));
+	ParticleSystemComp->SetupAttachment(ShipMesh);
+	ParticleSystemComp->SetVisibility(false);
 
 }
 
@@ -61,6 +68,39 @@ void ABaseSpaceship::BeginPlay()
 void ABaseSpaceship::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	if (isCurrentlyAiming)
+	{
+		APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
+		APlayerCameraManager* PlayerCameraManager = PlayerController->PlayerCameraManager;
+		FHitResult HitResult;
+		FVector ViewLoc;
+		FRotator ViewRot;
+		PlayerCameraManager->GetCameraViewPoint(ViewLoc, ViewRot);
+		FCollisionQueryParams CollisionParameters;
+		FVector ViewpointDirection = ViewRot.Vector();
+		FVector TraceEndLocation = ViewLoc + ViewpointDirection * 50000;
+		CollisionParameters.AddIgnoredActor(this);
+		FCollisionShape shape = FCollisionShape::MakeCapsule(FVector(100, 100, 100));
+		if (GetWorld()->SweepSingleByChannel(HitResult, ViewLoc, TraceEndLocation, FQuat::Identity, ECC_GameTraceChannel2, shape, CollisionParameters))
+		{
+			
+
+			if (!TargetedEnemies.Contains(HitResult.GetActor()))
+			{
+				//todo Find Widget on each one and activate it.
+				TargetedEnemies.Add(HitResult.GetActor());
+
+				for (AActor* target : TargetedEnemies)
+				{
+					if (UWidgetComponent* widget = target->FindComponentByClass<UWidgetComponent>())
+					{
+						widget->SetVisibility(true);
+					}
+				}
+			}
+		}
+	}
 
 
 
@@ -93,7 +133,10 @@ void ABaseSpaceship::MaxSpeedBoost()
 void ABaseSpaceship::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-	PlayerInputComponent->BindAction("Boost", IE_Pressed, this, &ABaseSpaceship::Boost);
+	PlayerInputComponent->BindAction("Boost", IE_Pressed, this, &ABaseSpaceship::ActivateShield);
+	PlayerInputComponent->BindAction("Boost", IE_Released, this, &ABaseSpaceship::DeactivateShield);
+	PlayerInputComponent->BindAction("Missiles", IE_Pressed, this, &ABaseSpaceship::AimMissiles);
+	PlayerInputComponent->BindAction("Missiles", IE_Released, this, &ABaseSpaceship::ReleaseMissiles);
 	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ABaseSpaceship::Fire);
 	PlayerInputComponent->BindAxis("MoveUp", this, &ABaseSpaceship::MoveUp);
 	PlayerInputComponent->BindAxis("Thrust", this, &ABaseSpaceship::Thrust);
@@ -117,9 +160,48 @@ void ABaseSpaceship::SetSpeed(float newSpeed)
 }
 
 
-void ABaseSpaceship::Boost()
+void ABaseSpaceship::ActivateShield()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Boosted"));
+	ParticleSystemComp->SetVisibility(true);
+	HealthComponent->SetCanTakeDamage(false);
+
+}
+
+void ABaseSpaceship::DeactivateShield()
+{
+	ParticleSystemComp->SetVisibility(false);
+	HealthComponent->SetCanTakeDamage(true);
+
+
+}
+
+void ABaseSpaceship::AimMissiles()
+{
+	//TODO if missiles are available
+	isCurrentlyAiming = true;
+
+}
+
+void ABaseSpaceship::ReleaseMissiles()
+{
+	isCurrentlyAiming = false;
+
+	if (TargetedEnemies.Num() > 0)
+	{
+		//for the length of the array, spawn that many projectiles upon release.
+		//each projectile is assigned the enemy of index as its homing target.
+
+		for (int i = 0; i < TargetedEnemies.Num(); ++i)
+		{
+			FActorSpawnParameters params;
+			params.Owner = this;
+			params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+			AHomingMissile* missile = GetWorld()->SpawnActor<AHomingMissile>(HomingMissileClass, ProjectileLaunchMuzzle->GetComponentTransform(), params);
+			missile->SetHomingTarget(TargetedEnemies[i]);
+		}
+
+		TargetedEnemies.Empty();
+	}
 }
 
 void ABaseSpaceship::MoveUp(float Value)

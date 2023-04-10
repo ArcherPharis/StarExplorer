@@ -62,7 +62,10 @@ public:
 	void OnBoostDone();
 
 private:
-	void Boost();
+	void ActivateShield();
+	void DeactivateShield();
+	void AimMissiles();
+	void ReleaseMissiles();
 	void MoveUp(float Value);
 	void Elevate(float Value);
 	void Thrust(float Value);
@@ -80,6 +83,9 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Ship")
 	UStaticMeshComponent* ShipMesh;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Ship")
+	UParticleSystemComponent* ParticleSystemComp;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Ship")
 	USceneComponent* ProjectileLaunchMuzzle;
@@ -104,6 +110,8 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Ship")
 	TSubclassOf<class AProjectile> ProjectileClass;
+	UPROPERTY(EditDefaultsOnly, Category = "Ship")
+	TSubclassOf<class AHomingMissile> HomingMissileClass;
 
 
 	UPROPERTY(EditDefaultsOnly, Category = "ShipParameters")
@@ -135,6 +143,11 @@ private:
 
 	UPROPERTY()
 	class USEGameInstance* Instance;
+
+	bool isCurrentlyAiming = false;
+
+	UPROPERTY(VisibleAnywhere)
+	TArray<AActor*> TargetedEnemies;
 	
 
 

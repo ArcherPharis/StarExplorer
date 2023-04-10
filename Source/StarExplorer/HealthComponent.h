@@ -21,6 +21,9 @@ public:
 
 	FOnDeath OnDeath;
 	FOnHealthChange OnHealthChange;
+
+	bool CanTakeDamage() const { return bAcceptDamage; }
+	void SetCanTakeDamage(bool CanTakeDamage);
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -39,4 +42,6 @@ private:
 
 	UFUNCTION()
 	void TakeDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* Instigator, AActor* DamageCauser);
+
+	bool bAcceptDamage = true;
 };

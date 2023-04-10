@@ -43,9 +43,9 @@ void ASEController::Tick(float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 	if (bIsInGameplay)
 	{
-		FVector2D ScreenSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());
+		//FVector2D ScreenSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());
 
-		SetMouseLocation(ScreenSize.X / 2, ScreenSize.Y / 2);
+		//SetMouseLocation(ScreenSize.X / 2, ScreenSize.Y / 2);
 	}
 
 }
